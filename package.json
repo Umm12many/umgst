@@ -1,0 +1,36 @@
+{
+  "name": "umgst",
+  "productName": "umgst",
+  "version": "1.0.0",
+  "description": "Unnoffical Magic Garden Sign-in Tool (UMGST for short) is a way for unnofficial desktop applications to sign in with Magic Garden, in an easier and more user friendly way.",
+  "main": "src/index.js",
+  "private": false,
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "echo \"No linting configured\"",
+    "test": "node auth_example.js"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Umm12many",
+    "email": "119079208+Umm12many@users.noreply.github.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.1"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.11.1",
+    "@electron-forge/maker-deb": "^7.11.1",
+    "@electron-forge/maker-rpm": "^7.11.1",
+    "@electron-forge/maker-squirrel": "^7.11.1",
+    "@electron-forge/maker-zip": "^7.11.1",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.11.1",
+    "@electron-forge/plugin-fuses": "^7.11.1",
+    "@electron/fuses": "^1.8.0",
+    "electron": "41.0.0-beta.5"
+  }
+}

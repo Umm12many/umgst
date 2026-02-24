@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UMGST Web Integration Example</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+        }
+        h1 { margin-top: 0; }
+        p { color: #65676b; margin-bottom: 2rem; }
+        .btn {
+            display: inline-block;
+            background-color: #fc4eb8;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background-color: #e63aa5;
+        }
+        .note {
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Login with UMGST</h1>
+        <p>Click the button below to launch the Unofficial Magic Garden Sign-in Tool and authenticate.</p>
+        
+        <!-- The magic happens here: Custom Protocol Link -->
+        <a href="umgst://MyWebApp" class="btn">Sign in via UMGST</a>
+        
+        <div class="note">
+            <strong>Note for Web Apps:</strong><br>
+            Web browsers cannot directly read the `mc_jwt.json` file from the user's computer due to security sandboxing. 
+            <br><br>
+            This button demonstrates how to <em>launch</em> the tool. To complete the login, you would typically need a companion desktop agent or ask the user to manually paste the token/code if this were a purely client-side app.
+        </div>
+    </div>
+</body>
+</html>
