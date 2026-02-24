@@ -1,0 +1,43 @@
+name: Build Electron App
+on:
+  push:
+    branches:
+      - main  # Or your default branch
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        # We use a matrix to run on all three major OS types
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20 # Use your project's node version
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      # Electron Forge 'make' command packages the app for the current OS
+      - name: Build App (Forge Make)
+        run: npm run make
+
+      # Upload the 'out' directory which contains your installers (.exe, .deb, .dmg, etc.)
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.os }}
+          path: out/make/
+          # This ensures that if a build fails, you don't get partial artifacts
+          if-no-files-found: error
