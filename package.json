@@ -11,7 +11,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\"",
-    "test": "node auth_example.js"
+    "test": "node examples/nodejs/auth_example.js"
   },
   "keywords": [],
   "author": {

