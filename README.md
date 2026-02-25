@@ -79,6 +79,16 @@ The encrypted token is saved to `mc_jwt.json` in the user's data directory:
 *   **Key**: SHA-256 hash of the 6-digit code string.
 *   **IV**: Provided in the JSON file.
 
+### 5. Verification & Cleanup (Crucial Security Step)
+After successfully decrypting the token, your application **MUST** verify the session by calling the UMGST protocol again with the code:
+
+`umgst://verified/<the_6_digit_code>`
+
+**Why?**
+1.  **Confirmation**: This tells UMGST that your app successfully decrypted the token.
+2.  **Cleanup**: UMGST will immediately **delete the `mc_jwt.json` file** from disk to prevent unauthorized access.
+3.  **UI Feedback**: UMGST will update its UI to "Authentication Successful!".
+
 ---
 
 ## 📂 Examples
@@ -91,6 +101,7 @@ A complete script that:
 1.  Launches UMGST automatically.
 2.  Prompts the user for the code in the terminal.
 3.  Reads and decrypts the token using standard crypto libraries.
+4.  **Verifies the session** by calling `umgst://verified/<code>`, triggering the cleanup.
 
 ### 🟣 C# (.NET)
 **Location:** `examples/csharp/`
@@ -98,6 +109,7 @@ A full `.NET 8.0` console application that:
 1.  Implements the `umgst://` protocol launch.
 2.  Includes a custom `AES-256-CTR` implementation (compatible with Node.js).
 3.  Demonstrates secure file reading and decryption.
+4.  *(Note: You should add the `umgst://verified/<code>` call to complete the flow in production).*
 
 ### 🌐 HTML / Web
 **Location:** `examples/html/index.html`

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            user-select: none;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: #1e1e1e;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+        h1 {
+            color: #fc4eb8;
+            margin-bottom: 24px;
+            font-size: 24px;
+        }
+        p {
+            font-size: 16px;
+            color: #cccccc;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .warning {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff0055;
+            color: #ffcccc;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+        .btn {
+            background-color: #5865F2; /* Discord Blurple */
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn:hover {
+            background-color: #4752c4;
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .btn-cancel {
+            background-color: transparent;
+            border: 1px solid #555;
+            margin-right: 10px;
+        }
+        .btn-cancel:hover {
+            background-color: #333;
+        }
+        
+        /* Modal Overlay */
+        #confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: #252525;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #fc4eb8;
+            box-shadow: 0 0 20px rgba(252, 78, 184, 0.2);
+            max-width: 400px;
+        }
+        .titlebar {
+            height: 40px;
+            background: #2b3035;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            app-region: drag;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 10000000000;
+        }
+    </style>
+</head>
+<body>
+    <div class="titlebar"></div>
+    <div class="container">
+        <h1 id="app-title">Sign into App</h1>
+        
+        <p>Would you like to Sign into <strong id="app-name-display">External App</strong> using the Unofficial Magic Garden Sign-in Tool?</p>
+
+        <div class="warning">
+            <strong>⚠️ WARNING</strong><br>
+            This is NOT an official app.<br>
+            <span id="app-name-warning">The application</span> will have access to your Magic Garden Auth Token. This allows it to log in as you!
+        </div>
+
+        <button class="btn" id="signin-btn">Sign In</button>
+    </div>
+
+    <div id="confirmation-modal">
+        <div class="modal-content">
+            <h2>Are you sure?</h2>
+            <p>This will grant full account access to this application.</p>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-cancel" id="cancel-btn">Cancel</button>
+                <button class="btn" id="confirm-btn">Yes, I'm sure</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

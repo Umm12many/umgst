@@ -16,8 +16,6 @@ const checkAuth = async () => {
   const result = await ipcRenderer.invoke("check-auth-cookie");
   if (result && result.success) {
     // Redirect to Success.html
-    // We use a relative path that Electron can resolve, or we can send another IPC to the main process
-    // to load the file properly. Loading local files from a remote origin is usually blocked.
     ipcRenderer.send("load-success-page");
   }
 };
@@ -227,9 +225,7 @@ window.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
-});
-
-window.addEventListener("DOMContentLoaded", () => {
+  
   localStorage.setItem("isAmbienceMuteAtom", "true");
   localStorage.setItem("isMusicMuteAtom", "true");
   localStorage.setItem("musicVolumeAtom", "0");
@@ -312,6 +308,50 @@ window.addEventListener("DOMContentLoaded", async () => {
     document.body.prepend(toolbar);
   }
 
+  // Handle SignIn.html
+  if (window.location.href.includes("SignIn.html")) {
+    const appName = await ipcRenderer.invoke("get-app-name");
+    
+    // Update Text
+    const nameDisplay = document.getElementById("app-name-display");
+    const nameWarning = document.getElementById("app-name-warning");
+    const titleDisplay = document.getElementById("app-title");
+    
+    if (appName) {
+        if (nameDisplay) nameDisplay.innerText = appName;
+        if (nameWarning) nameWarning.innerText = appName;
+        if (titleDisplay) titleDisplay.innerText = `Sign into ${appName}`;
+    }
+
+    // Modal Logic
+    const signinBtn = document.getElementById("signin-btn");
+    const cancelBtn = document.getElementById("cancel-btn");
+    const confirmBtn = document.getElementById("confirm-btn");
+    const modal = document.getElementById("confirmation-modal");
+
+    if (signinBtn && modal) {
+        signinBtn.addEventListener("click", () => {
+            modal.style.display = "flex";
+        });
+    }
+
+    if (cancelBtn && modal) {
+        cancelBtn.addEventListener("click", () => {
+            modal.style.display = "none";
+        });
+    }
+
+    if (confirmBtn) {
+        confirmBtn.addEventListener("click", () => {
+            // Start the auth flow
+            ipcRenderer.send("start-auth-flow");
+            // Optional: Show loading state
+            confirmBtn.innerText = "Loading...";
+            confirmBtn.disabled = true;
+        });
+    }
+  }
+
   // Handle Success.html
   if (window.location.href.includes("Success.html")) {
     const code = await ipcRenderer.invoke("get-auth-code");
@@ -331,10 +371,21 @@ window.addEventListener("DOMContentLoaded", async () => {
       codePara.innerText = code;
       
       const instructions = document.createElement("p");
-      instructions.innerText = "Please enter this code in the application to complete sign-in.";
+      instructions.id = "status-message";
+      instructions.innerText = "Please enter this code in the application to complete sign-in. Waiting for confirmation...";
       
       container.appendChild(codePara);
       container.appendChild(instructions);
+
+      // Listen for verification success
+      ipcRenderer.on("auth-verified", () => {
+        const h1 = container.querySelector("h1");
+        if (h1) h1.innerText = "Verified!";
+        
+        instructions.innerText = "Authentication Successful! You can now close this window.";
+        instructions.style.color = "#4BB543"; // Success Green
+        codePara.style.opacity = "0.5";
+      });
     }
   }
 });

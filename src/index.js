@@ -23,15 +23,58 @@ if (process.defaultApp) {
   app.setAsDefaultProtocolClient("umgst");
 }
 
-// Parse App Name from URL
-function parseAppName(argv) {
+function handleProtocolUrl(url) {
+  const protocolPrefix = "umgst://";
+  if (url.startsWith(protocolPrefix)) {
+    const rawName = url.substring(protocolPrefix.length);
+    // Remove trailing slash if present
+    const cleanName = rawName.endsWith("/") ? rawName.slice(0, -1) : rawName;
+    
+    if (cleanName.startsWith("verified/")) {
+      const codeReceived = cleanName.split("/")[1];
+      
+      if (latestAuthCode && codeReceived === latestAuthCode) {
+        // Code matches!
+        
+        // 1. Delete the credentials file
+        try {
+           const userDataPath = app.getPath("userData");
+           const filePath = path.join(userDataPath, "mc_jwt.json");
+           if (fs.existsSync(filePath)) {
+             fs.unlinkSync(filePath);
+             console.log(`[UMGST] Cleanup: Deleted ${filePath}`);
+           }
+        } catch (err) {
+           console.error("[UMGST] Error deleting credentials file:", err);
+        }
+
+        // 2. Notify Renderer
+        if (mainWindow) {
+          mainWindow.webContents.send("auth-verified");
+          if (mainWindow.isMinimized()) mainWindow.restore();
+          mainWindow.focus();
+        }
+        
+        // 3. Reset Code
+        latestAuthCode = null;
+      } else {
+         console.warn("[UMGST] Verification failed: Invalid code received.");
+      }
+    } else if (cleanName.toLowerCase() === "success") {
+       // Legacy success check, or we can remove it if strictly enforcing code
+       // For now, keeping "success" does nothing for security, removing "verified" without code
+    } else {
+      appName = decodeURIComponent(cleanName); // Handle URL encoding
+    }
+  }
+}
+
+// Parse App Name from CLI args
+function parseAppNameFromArgs(argv) {
   const protocolPrefix = "umgst://";
   const urlArg = argv.find((arg) => arg.startsWith(protocolPrefix));
   if (urlArg) {
-    const rawName = urlArg.substring(protocolPrefix.length);
-    // Remove trailing slash if present
-    appName = rawName.endsWith("/") ? rawName.slice(0, -1) : rawName;
-    appName = decodeURIComponent(appName); // Handle URL encoding
+    handleProtocolUrl(urlArg);
   }
 }
 
@@ -47,22 +90,17 @@ if (!gotTheLock) {
       if (mainWindow.isMinimized()) mainWindow.restore();
       mainWindow.focus();
     }
-    parseAppName(commandLine);
+    parseAppNameFromArgs(commandLine);
   });
 
   // Handle initial launch
-  parseAppName(process.argv);
+  parseAppNameFromArgs(process.argv);
 }
 
 // Handle macOS open-url
 app.on("open-url", (event, url) => {
   event.preventDefault();
-  const protocolPrefix = "umgst://";
-  if (url.startsWith(protocolPrefix)) {
-    const rawName = url.substring(protocolPrefix.length);
-    appName = rawName.endsWith("/") ? rawName.slice(0, -1) : rawName;
-    appName = decodeURIComponent(appName);
-  }
+  handleProtocolUrl(url);
 });
 
 const createWindow = () => {
@@ -83,13 +121,11 @@ const createWindow = () => {
     titleBarStyle: "hidden",
   });
 
-  // and load the index.html of the app.
-  mainWindow.loadURL("https://magicgarden.gg", {
-    userAgent: "McDesktopClient",
-  });
+  // Load the initial Sign In page
+  mainWindow.loadFile(path.join(__dirname, "SignIn.html"));
 
   // Open the DevTools.
-  //mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 };
 
 function encrypt(text, code) {
@@ -128,7 +164,7 @@ async function captureCookie(cookie) {
         // code: code, // Code is no longer saved to file
       },
       null,
-      2,
+      2
     );
 
     fs.writeFileSync(filePath, data);
@@ -168,6 +204,29 @@ ipcMain.handle("get-app-name", () => {
 
 ipcMain.handle("get-auth-code", () => {
   return latestAuthCode;
+});
+
+ipcMain.on("start-auth-flow", async () => {
+  if (mainWindow) {
+    const domain = "magicgarden.gg";
+    const redirectUrl = "https://magicgarden.gg/oauth2/redirect";
+    
+    // Set cookies required for OAuth flow
+    const cookie1 = { url: "https://magicgarden.gg", name: "mc_oauth_redirect_uri", value: redirectUrl };
+    const cookie2 = { url: "https://magicgarden.gg", name: "mc_oauth_room_id", value: "123" }; // Arbitrary ID
+
+    try {
+      await session.defaultSession.cookies.set(cookie1);
+      await session.defaultSession.cookies.set(cookie2);
+      
+      const discordAuthUrl = "https://discord.com/oauth2/authorize?client_id=1227719606223765687&response_type=code&redirect_uri=https%3A%2F%2Fmagicgarden.gg%2Foauth2%2Fredirect&scope=identify+guilds.members.read+guilds";
+      mainWindow.loadURL(discordAuthUrl, {
+        userAgent: "McDesktopClient",
+      });
+    } catch (error) {
+      console.error("[UMGST] Error setting auth cookies:", error);
+    }
+  }
 });
 
 ipcMain.on("load-success-page", (event) => {

@@ -33,27 +33,26 @@ function decrypt(encryptedContent, ivHex, code) {
   return decrypted.toString();
 }
 
-function openUmgst(appName) {
-  const url = `umgst://${appName}`;
+function openUmgst(command) {
+  const url = command.includes("://") ? command : `umgst://${command}`;
   console.log(`Launching UMGST via ${url}...`);
 
-  let command;
+  let shellCommand;
   switch (process.platform) {
     case "win32":
-      command = `start ${url}`;
+      shellCommand = `start ${url}`;
       break;
     case "darwin":
-      command = `open ${url}`;
+      shellCommand = `open ${url}`;
       break;
     default:
-      command = `xdg-open ${url}`;
+      shellCommand = `xdg-open ${url}`;
       break;
   }
 
-  exec(command, (error) => {
+  exec(shellCommand, (error) => {
     if (error) {
-      console.error(`Failed to open app: ${error.message}`);
-      console.log("Please manually launch UMGST if it didn't open.");
+      console.error(`Failed to execute command: ${error.message}`);
     }
   });
 }
@@ -82,7 +81,12 @@ rl.question(
           try {
             const jwt = decrypt(data.mc_jwt, data.iv, code.trim());
             console.log("Decrypted JWT:", jwt);
-            // Now you can use this JWT to authenticate with Magic Garden APIs
+            
+            // 3. Confirm Success to UMGST
+            const trimmedCode = code.trim();
+            console.log(`Verifying with UMGST (Code: ${trimmedCode})...`);
+            openUmgst(`verified/${trimmedCode}`);
+            
           } catch (err) {
             console.error("Failed to decrypt. Incorrect code?");
           }
