@@ -1,6 +1,6 @@
 # UMGST - Unofficial Magic Garden Sign-in Tool
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Platform](https://img.shields.io/badge/platform-win%20%7C%20mac%20%7C%20linux-lightgrey)
+![Version](https://img.shields.io/badge/version-1.0.0-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Platform](https://img.shields.io/badge/platform-win-lightgrey)
 
 **UMGST** is a ~secure helper application designed to bridge the gap between unofficial applications and **Magic Garden** game authentication. It simplifies the OAuth flow, and provides a standardized way for your apps to log in users.
 
